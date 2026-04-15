@@ -68,7 +68,7 @@ pip install google-api-python-client pandas
 
 # 导出 YouTube 数据（见 docs/takeout-guide-cn.md）
 
-# 配置 API 密钥（可选，不配置也能运行）
+# 配置 API 密钥（见 docs/takeout-guide-cn.md）
 # 编辑 config.json 中的 api.key
 
 # 一键运行
