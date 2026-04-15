@@ -10,16 +10,16 @@ import os
 import json
 
 # 设置代理
-os.environ['HTTP_PROXY'] = 'http://proxy-dku.oit.duke.edu:3128'
-os.environ['HTTPS_PROXY'] = 'http://proxy-dku.oit.duke.edu:3128'
-os.environ['http_proxy'] = 'http://proxy-dku.oit.duke.edu:3128'
-os.environ['https_proxy'] = 'http://proxy-dku.oit.duke.edu:3128'
+os.environ['HTTP_PROXY'] = ''
+os.environ['HTTPS_PROXY'] = ''
+os.environ['http_proxy'] = ''
+os.environ['https_proxy'] = ''
 
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 # API配置
-API_KEY = 'AIzaSyCfqxUG56YJYfg3RzXPbGAqiNWUXPTuecI'
+API_KEY = ''
 youtube = build('youtube', 'v3', developerKey=API_KEY)
 
 def test_api():
