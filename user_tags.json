@@ -1,0 +1,273 @@
+{
+  "_version": "1.0",
+  "_description": "用户观看历史标签分类系统 - 有趣的梗图式人格标签",
+  "_author": "Bronya & 舰长",
+  
+  "core_tags": {
+    "深夜实验室科学家": {
+      "emoji": "🧪",
+      "description": "技术宅/程序员/AI爱好者",
+      "keywords": [
+        "tutorial", "coding", "programming", "python", "javascript",
+        "AI", "machine learning", "deep learning", "neural network",
+        "science", "physics", "math", "algorithm", "data science",
+        "computer science", "software", "developer", "api",
+        "技术", "编程", "教程", "科普", "科学", "人工智能", "机器学习"
+      ],
+      "channels_pattern": ["3Blue1Brown", "Veritasium", "Kurzgesagt", "Two Minute Papers"],
+      "watch_time_bias": "深夜",
+      "weight": 1.5
+    },
+    
+    "快乐肥宅": {
+      "emoji": "🎮",
+      "description": "游戏动漫二次元狂热者",
+      "keywords": [
+        "gameplay", "gaming", "walkthrough", "let's play", "minecraft",
+        "anime", "manga", "animation", "cosplay", "japan",
+        "twitch", "stream", "esports", "league of legends", "dota",
+        "原神", "崩坏", "游戏", "动漫", "二次元", "手游", "主机游戏",
+        "鬼畜", "MAD", "AMV", "Vtuber", "虚拟主播"
+      ],
+      "channels_pattern": ["PewDiePie", "Markiplier", "游戏区", "番剧"],
+      "watch_time_bias": "周末/深夜",
+      "weight": 1.2
+    },
+    
+    "自律战士": {
+      "emoji": "🏋️",
+      "description": "健身/运动/拳击狂热者",
+      "keywords": [
+        "workout", "fitness", "gym", "exercise", "health",
+        "running", "marathon", "boxing", "mma", "weightlifting",
+        "yoga", "diet", "nutrition", "bodybuilding",
+        "健身", "跑步", "拳击", "篮球", "足球", "NBA", "体能训练",
+        "自律", "腹肌", "减脂", "增肌"
+      ],
+      "channels_pattern": ["ATHLEAN-X", "Jeff Nippard", "健身博主"],
+      "watch_time_bias": "清晨/下班后",
+      "weight": 1.3
+    },
+    
+    "卷王之王": {
+      "emoji": "📚",
+      "description": "学习狂魔/考试战士",
+      "keywords": [
+        "study", "exam", "tutorial", "lecture", "course",
+        "SAT", "TOEFL", "IELTS", "GRE", "GMAT", "考研",
+        "university", "school", "homework", "tutoring",
+        "商科", "金融", "经济", "会计", "法律", "医学",
+        "学习", "教程", "课程", "公开课", "名校", "学霸"
+      ],
+      "channels_pattern": ["Coursera", "edX", "可汗学院", "学习区"],
+      "watch_time_bias": "深夜/周末",
+      "weight": 1.4
+    },
+    
+    "音乐鉴赏家": {
+      "emoji": "🎵",
+      "description": "音乐发烧友",
+      "keywords": [
+        "music", "song", "album", "concert", "live",
+        "piano", "guitar", "tutorial", "cover", "remix",
+        "pop", "rock", "jazz", "classical", "hip hop",
+        "音乐", "演唱会", "现场", "乐评", "翻唱", "乐器教程",
+        "歌单", "新歌", "打歌", "MV"
+      ],
+      "channels_pattern": ["音色鉴定", "音乐现场", "Live", "Concert"],
+      "watch_time_bias": "无特定",
+      "weight": 1.1
+    },
+    
+    "影视达人": {
+      "emoji": "🎬",
+      "description": "电影/剧集/综艺爱好者",
+      "keywords": [
+        "movie", "film", "trailer", "review", "cinema",
+        "series", "drama", "show", "netflix", "tv",
+        "hollywood", "animation", "anime movie",
+        "电影", "剧集", "综艺", "解说", "影评", "预告片",
+        "追剧", "新番", "豆瓣", "IMDb"
+      ],
+      "channels_pattern": ["Netflix", "豆瓣", "解说区", "影视解说"],
+      "watch_time_bias": "晚间",
+      "weight": 1.0
+    },
+    
+    "生活家": {
+      "emoji": "🍳",
+      "description": "烹饪/手工/DIY达人",
+      "keywords": [
+        "cooking", "recipe", "food", "kitchen", "baking",
+        "DIY", "craft", "home", "design", "interior",
+        "garden", "plant", "pet", "cat", "dog",
+        "烹饪", "美食", "菜谱", "烘焙", "手工", "家居",
+        "收纳", "装修", "宠物", "养猫", "养狗"
+      ],
+      "channels_pattern": ["美食区", "手工区", "家居博主"],
+      "watch_time_bias": "午后/周末",
+      "weight": 1.0
+    },
+    
+    "云旅游者": {
+      "emoji": "🌍",
+      "description": "旅行/探店爱好者",
+      "keywords": [
+        "travel", "vlog", "tourism", "adventure", "backpack",
+        "hotel", "food", "restaurant", "street food",
+        "city", "country", "beach", "mountain",
+        "旅行", "旅游", "vlog", "探店", "美食探店",
+        "打卡", "攻略", "民宿", "景点"
+      ],
+      "channels_pattern": ["旅行博主", "探店区", "美食区"],
+      "watch_time_bias": "周末",
+      "weight": 1.0
+    }
+  },
+  
+  "meme_tags": {
+    "鸡你太美患者": {
+      "emoji": "🐔",
+      "description": "追星族/饭圈女孩",
+      "keywords": ["追星", "应援", "打榜", "投票", "控评", "粉丝", "偶像", "明星", "idol", "fans"],
+      "condition": "同一明星相关内容 > 5个"
+    },
+    
+    "下饭视频爱好者": {
+      "emoji": "🍚",
+      "description": "吃饭必看视频",
+      "keywords": ["vlog", "吃播", "asmr", "闲聊", "脱口秀"],
+      "condition": "午餐/晚餐时段集中观看"
+    },
+    
+    "失眠患者": {
+      "emoji": "🌙",
+      "description": "深夜睡不着刷视频",
+      "keywords": ["睡不着", "失眠", "夜深"],
+      "condition": "0:00-5:00 时段观看 > 20%"
+    },
+    
+    "摸鱼带师": {
+      "emoji": "🐟",
+      "description": "上班/学习时间偷偷看",
+      "keywords": ["摸鱼"],
+      "condition": "工作日 9:00-18:00 观看"
+    },
+    
+    "知识焦虑症": {
+      "emoji": "📦",
+      "description": "疯狂收藏但从不看",
+      "keywords": ["收藏", "mark", "save"],
+      "condition": "收藏率高但播放完成率低"
+    },
+    
+    "无限循环患者": {
+      "emoji": "🔄",
+      "description": "反复看同一个视频",
+      "keywords": ["单曲循环"],
+      "condition": "同一视频ID出现多次"
+    },
+    
+    "AI狂信徒": {
+      "emoji": "🤖",
+      "description": "对AI极度痴迷",
+      "keywords": ["ChatGPT", "GPT", "AI", "artificial intelligence", "machine learning", "LLM", "大模型"],
+      "condition": "AI相关视频 > 50%",
+      "weight": 2.0
+    },
+    
+    "MBTI分析师": {
+      "emoji": "🔮",
+      "description": "人格测试/心理学爱好者",
+      "keywords": ["MBTI", "ENFP", "INTJ", "personality", "人格", "心理学", "mbti", "荣格", "16型人格"]
+    },
+    
+    "赛博朋克": {
+      "emoji": "🌃",
+      "description": "科技未来感爱好者",
+      "keywords": ["cyberpunk", "sci-fi", "future", "technology", "robot", "science fiction", "科幻", "赛博", "未来"]
+    }
+  },
+  
+  "social_tags": {
+    "社牛": {
+      "emoji": "👥",
+      "description": "喜欢社交/访谈类内容",
+      "keywords": ["interview", "podcast", "talk show", "conversation", "talk", "访谈", "对话", "播客", "脱口秀"]
+    },
+    
+    "铲屎官": {
+      "emoji": "🐕",
+      "description": "宠物爱好者",
+      "keywords": ["pets", "cat", "dog", "animal", "puppy", "kitten", "cute", "可爱", "猫猫", "狗狗", "宠物"]
+    },
+    
+    "孤独患者": {
+      "emoji": "🧑",
+      "description": "一个人宅着看vlog",
+      "keywords": ["vlog", "daily", "日志", "日常"],
+      "condition": "单人vlog为主，无社交内容"
+    },
+    
+    "冲浪选手": {
+      "emoji": "📢",
+      "description": "追热点/看新闻",
+      "keywords": ["news", "trending", "viral", "hot", "热搜", "热点", "新闻", "时事", "breaking"]
+    },
+    
+    "梗百科": {
+      "emoji": "🎪",
+      "description": "meme/搞笑/鬼畜",
+      "keywords": ["meme", "funny", "comedy", "humor", "prank", "搞笑", "鬼畜", "整活", "沙雕", "梗"]
+    }
+  },
+  
+  "time_tags": {
+    "早起鸟": {
+      "emoji": "🌅",
+      "description": "习惯早起看视频",
+      "condition": "5:00-7:00 观看"
+    },
+    
+    "午休战士": {
+      "emoji": "☀️",
+      "description": "午休时间抓紧看",
+      "condition": "12:00-13:00 集中观看"
+    },
+    
+    "夜猫子": {
+      "emoji": "🦉",
+      "description": "习惯熬夜刷视频",
+      "condition": "23:00-3:00 观看 > 30%"
+    },
+    
+    "周末肥宅": {
+      "emoji": "🛋️",
+      "description": "周末观看看视频",
+      "condition": "周末观看量是工作日 2倍以上"
+    },
+    
+    "期末集中爆发": {
+      "emoji": "📖",
+      "description": "考试周疯狂学习",
+      "condition": "特定月份学习类视频激增"
+    }
+  },
+  
+  "tag_combination_rules": {
+    "emoji_generation": "将主标签 + 副标签组合生成独特标签",
+    "examples": [
+      "🧪 + 🌙 = 深夜程序员（凌晨写代码的人）",
+      "🎮 + 🐔 = 追星 gamer（游戏区的偶像粉丝）",
+      "📚 + 🤖 = AI 学习党（狂学 AI 的学霸）",
+      "🏋️ + 🌅 = 晨练达人（早起锻炼）"
+    ]
+  },
+  
+  "scoring_weights": {
+    "keyword_match": 2.0,
+    "channel_match": 1.5,
+    "time_pattern": 1.0,
+    "frequency": 0.5
+  }
+}

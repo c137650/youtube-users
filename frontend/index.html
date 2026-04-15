@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Memory Graph - 个人记忆图谱</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <h1>🎬 YouTube Memory Graph</h1>
+            <p class="subtitle">你的观看历史可视化</p>
+            <button id="loadDataBtn" class="btn-primary">📂 加载数据</button>
+            <input type="file" id="fileInput" accept=".json" style="display: none;">
+        </header>
+
+        <!-- Bubble View -->
+        <div id="bubbleView" class="view">
+            <div class="canvas-container">
+                <canvas id="bubbleCanvas"></canvas>
+            </div>
+        </div>
+
+        <!-- Knowledge Graph View -->
+        <div id="graphView" class="view hidden">
+            <div class="canvas-container">
+                <canvas id="graphCanvas"></canvas>
+            </div>
+            <button id="backBtn" class="btn-back">← 返回气泡图</button>
+        </div>
+
+        <!-- Tooltip -->
+        <div id="tooltip" class="tooltip hidden">
+            <h3 class="tooltip-title"></h3>
+            <p class="tooltip-channel"></p>
+            <p class="tooltip-time"></p>
+            <p class="tooltip-hint"></p>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>加载中...</p>
+        </div>
+    </div>
+
+    <!-- D3.js + Force -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
