@@ -2,11 +2,11 @@
     "api": {
         "key": "YOUR_API_KEY_HERE",
         "proxy": {
-            "http": "http://proxy-dku.oit.duke.edu:3128",
-            "https": "http://proxy-dku.oit.duke.edu:3128"
+            "http": "",
+            "https": ""
         }
     },
     "paths": {
-        "takeout_dir": "E:\\hackathon_data_crawler\\Takeout"
+        "takeout_dir": ""
     }
 }
