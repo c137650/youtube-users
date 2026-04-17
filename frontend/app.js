@@ -752,6 +752,8 @@ async function loadData(file) {
 
         renderBubbleChart();
         addStatsBar();
+        triggerAiAnalysis();
+        triggerSuggestAnalysis();
 
         console.log('渲染完成');
 
@@ -777,10 +779,357 @@ function addStatsBar() {
 }
 
 // ========================================
+// 建议栏模块
+// ========================================
+
+function buildSuggestPrompt(tagStats) {
+    const sorted = Object.entries(tagStats)
+        .sort((a, b) => b[1].count - a[1].count)
+        .slice(0, 10);
+
+    const tagLines = sorted.map(([name, data]) => `  · ${name}（${data.count} 个视频）`).join('\n');
+
+    return `用户的 YouTube 观看历史以以下兴趣标签为主：
+
+${tagLines}
+
+请为他/她推荐 6 个 YouTube 视频，帮助拓宽视野、走出信息茧房。
+
+要求：
+1. 推荐的视频应与用户已有兴趣有一定关联，但能引向新领域
+2. 必须是真实存在的 YouTube 视频，使用你确认存在的 video_id（11位字母数字）
+3. 相信你的第一判断，不要反复核查或怀疑自己，直接输出结果
+4. 严格返回如下 JSON 数组，不要有任何其他文字或 markdown 代码块：
+[
+  {
+    "video_id": "视频ID",
+    "title": "视频标题",
+    "channel": "频道名",
+    "reason": "推荐理由（15字以内）"
+  }
+]`;
+}
+
+function renderSkeletons(n = 4) {
+    return Array(n).fill(0).map(() => `
+        <div class="suggest-skeleton">
+            <div class="skel-thumb"></div>
+            <div class="skel-line"></div>
+            <div class="skel-line short"></div>
+        </div>
+    `).join('');
+}
+
+function renderVideoCards(videos) {
+    return videos.map(v => {
+        const thumbUrl = `https://img.youtube.com/vi/${v.video_id}/mqdefault.jpg`;
+        const ytUrl    = `https://www.youtube.com/watch?v=${v.video_id}`;
+        return `
+        <a class="video-card" href="${ytUrl}" target="_blank" rel="noopener">
+            <img class="video-thumb"
+                 src="${thumbUrl}"
+                 alt="${escapeHtml(v.title)}"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="video-thumb-placeholder" style="display:none">🎬</div>
+            <div class="video-info">
+                <div class="video-title">${escapeHtml(v.title)}</div>
+                <div class="video-channel">${escapeHtml(v.channel)}</div>
+                <span class="video-reason">💡 ${escapeHtml(v.reason)}</span>
+            </div>
+        </a>`;
+    }).join('');
+}
+
+async function triggerSuggestAnalysis() {
+    const apiKey = getStoredApiKey();
+    const suggestResult = document.getElementById('suggestResult');
+
+    if (!apiKey) {
+        suggestResult.innerHTML = '<p class="ai-placeholder">请先保存 API Key。</p>';
+        return;
+    }
+    if (!state.tagStats || Object.keys(state.tagStats).length === 0) return;
+
+    // 显示思考过程容器
+    suggestResult.innerHTML = `
+        <div id="suggestThinking" class="suggest-thinking">
+            <div class="suggest-thinking-label">🧠 思考中…</div>
+            <div id="suggestThinkingText" class="suggest-thinking-text"></div>
+        </div>
+    `;
+    const thinkingBox  = document.getElementById('suggestThinking');
+    const thinkingText = document.getElementById('suggestThinkingText');
+
+    const prompt = buildSuggestPrompt(state.tagStats);
+
+    try {
+        const response = await fetch('https://api.minimaxi.com/v1/text/chatcompletion_v2', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+                model: 'MiniMax-M2.7',
+                messages: [{ role: 'user', content: prompt }],
+                stream: true,
+                thinking: { type: 'enabled', budget_tokens: 2000 },
+            }),
+        });
+
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errText.slice(0, 100)}`);
+        }
+
+        const reader  = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer       = '';
+        let reasoningAcc = '';
+        let contentAcc   = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
+
+            for (const line of lines) {
+                const raw = line.trim();
+                if (!raw.startsWith('data:')) continue;
+                const jsonStr = raw.slice(5).trim();
+                if (jsonStr === '[DONE]') continue;
+                try {
+                    const chunk = JSON.parse(jsonStr);
+                    const delta = chunk.choices?.[0]?.delta || {};
+
+                    if (delta.reasoning_content) {
+                        reasoningAcc += delta.reasoning_content;
+                        thinkingText.innerHTML = escapeHtml(reasoningAcc) + '<span class="ai-thinking">▋</span>';
+                        thinkingText.scrollTop = thinkingText.scrollHeight;
+                    }
+                    if (delta.content) {
+                        contentAcc += delta.content;
+                    }
+                } catch {}
+            }
+        }
+
+        // 流结束：隐藏思考过程，渲染视频卡片
+        thinkingBox.style.display = 'none';
+
+        const match = contentAcc.match(/\[[\s\S]*\]/);
+        if (!match) throw new Error('返回格式错误');
+
+        const videos = JSON.parse(match[0]);
+        if (!Array.isArray(videos) || videos.length === 0) throw new Error('视频列表为空');
+
+        suggestResult.innerHTML = renderVideoCards(videos);
+
+    } catch (e) {
+        console.error('建议栏 API 失败:', e);
+        suggestResult.innerHTML = `<p class="ai-placeholder" style="color:#fca5a5">❌ 推荐加载失败：${e.message}</p>`;
+    }
+}
+
+// ========================================
+// AI 分析模块
+// ========================================
+
+function getStoredApiKey() {
+    return localStorage.getItem('minimaxApiKey') || '';
+}
+
+function initApiKeySection() {
+    const input = document.getElementById('apiKeyInput');
+    const btn = document.getElementById('saveKeyBtn');
+    const status = document.getElementById('keyStatus');
+
+    if (getStoredApiKey()) {
+        input.value = '••••••••';
+        status.textContent = '✓ Key 已保存';
+    }
+
+    btn.addEventListener('click', () => {
+        const val = input.value.trim();
+        if (!val || val.startsWith('•')) {
+            status.textContent = '未修改';
+            status.className = 'key-status';
+            return;
+        }
+        localStorage.setItem('minimaxApiKey', val);
+        input.value = '••••••••';
+        status.textContent = '✓ 保存成功';
+        status.className = 'key-status';
+    });
+}
+
+function buildAnalysisPrompt(tagStats) {
+    const sorted = Object.entries(tagStats)
+        .sort((a, b) => b[1].count - a[1].count);
+
+    const total = sorted.reduce((s, [, v]) => s + v.count, 0);
+
+    const tagLines = sorted.slice(0, 12).map(([name, data]) => {
+        const pct = ((data.count / total) * 100).toFixed(1);
+        return `  · ${name}：${data.count} 个视频（${pct}%）`;
+    }).join('\n');
+
+    return `你是一位心理学和兴趣研究专家，擅长通过行为数据洞察人的性格与内心世界。
+
+以下是某用户 YouTube 观看历史的兴趣标签统计：
+
+${tagLines}
+
+共 ${total} 条有标签的观看记录。
+
+请以温暖、有趣、略带洞察感的口吻，分析这个人的兴趣偏好和性格特质，帮助他/她更清楚地认识自己。
+要求：
+1. 不要机械地逐条列举标签，而是做心理层面的整体洞察
+2. 可以适当用 emoji 增加可读性
+3. 语气像一位朋友在和你聊天，不要过于正式
+4. 相信你的第一判断，不要反复核查字数或怀疑自己，直接输出结果
+5. 最后可以给出一句温暖的总结`;
+}
+
+async function streamToPanel(response) {
+    const aiResult = document.getElementById('aiResult');
+
+    // 先搭好骨架
+    aiResult.innerHTML = `
+        <details class="thinking-block" open>
+            <summary>🧠 思考过程</summary>
+            <div class="thinking-content" id="thinkingContent"></div>
+        </details>
+        <div class="ai-answer" id="aiAnswer"></div>
+    `;
+
+    const thinkingEl = document.getElementById('thinkingContent');
+    const answerEl   = document.getElementById('aiAnswer');
+
+    // 思考中光标
+    thinkingEl.innerHTML = '<span class="ai-thinking">▋</span>';
+
+    const reader  = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let thinkingText = '';
+    let answerText   = '';
+    let answerStarted = false;
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (const line of lines) {
+            const raw = line.trim();
+            if (!raw.startsWith('data:')) continue;
+            const jsonStr = raw.slice(5).trim();
+            if (jsonStr === '[DONE]') continue;
+            try {
+                const chunk = JSON.parse(jsonStr);
+                const delta = chunk.choices?.[0]?.delta || {};
+
+                if (delta.reasoning_content) {
+                    thinkingText += delta.reasoning_content;
+                    thinkingEl.innerHTML = escapeHtml(thinkingText) + '<span class="ai-thinking">▋</span>';
+                    // 自动滚到底
+                    thinkingEl.scrollTop = thinkingEl.scrollHeight;
+                }
+
+                if (delta.content) {
+                    if (!answerStarted) {
+                        // 思考结束：去掉光标，折叠思考块
+                        thinkingEl.innerHTML = escapeHtml(thinkingText);
+                        document.querySelector('.thinking-block').removeAttribute('open');
+                        answerEl.innerHTML = '<span class="ai-thinking">▋</span>';
+                        answerStarted = true;
+                    }
+                    answerText += delta.content;
+                    answerEl.innerHTML = escapeHtml(answerText) + '<span class="ai-thinking">▋</span>';
+                }
+            } catch {}
+        }
+    }
+
+    // 流结束，去掉所有光标
+    thinkingEl.innerHTML = escapeHtml(thinkingText);
+    answerEl.innerHTML   = escapeHtml(answerText);
+
+    if (!answerText && !thinkingText) {
+        aiResult.innerHTML = '<p class="ai-placeholder" style="color:#fca5a5">未收到分析内容，请检查 API Key。</p>';
+    }
+}
+
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br>');
+}
+
+async function triggerAiAnalysis() {
+    const apiKey = getStoredApiKey();
+    const aiResult = document.getElementById('aiResult');
+
+    if (!apiKey) {
+        aiResult.innerHTML = '<p class="ai-placeholder">请先填写并保存 MiniMax API Key，然后重新加载数据。</p>';
+        return;
+    }
+
+    if (!state.tagStats || Object.keys(state.tagStats).length === 0) return;
+
+    aiResult.classList.remove('streaming');
+    aiResult.innerHTML = '<p class="ai-placeholder">🔮 正在分析你的兴趣画像…</p>';
+
+    const prompt = buildAnalysisPrompt(state.tagStats);
+
+    try {
+        const response = await fetch('https://api.minimaxi.com/v1/text/chatcompletion_v2', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+                model: 'MiniMax-M2.7',
+                messages: [{ role: 'user', content: prompt }],
+                stream: true,
+            }),
+        });
+
+        if (!response.ok) {
+            const errText = await response.text();
+            let errMsg = `HTTP ${response.status}`;
+            try {
+                const errJson = JSON.parse(errText);
+                errMsg = errJson.error?.message || errJson.message || errMsg;
+            } catch {}
+            throw new Error(errMsg);
+        }
+
+        await streamToPanel(response);
+    } catch (e) {
+        console.error('MiniMax API 调用失败:', e);
+        aiResult.classList.remove('streaming');
+        aiResult.innerHTML = `<p class="ai-placeholder" style="color:#fca5a5">❌ 分析失败：${e.message}</p>`;
+    }
+}
+
+// ========================================
 // 事件绑定
 // ========================================
 
 function init() {
+    initApiKeySection();
+
     elements.loadDataBtn.addEventListener('click', () => {
         elements.fileInput.click();
     });

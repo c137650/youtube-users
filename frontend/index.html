@@ -18,8 +18,45 @@
 
         <!-- Bubble View -->
         <div id="bubbleView" class="view">
-            <div class="canvas-container">
-                <canvas id="bubbleCanvas"></canvas>
+            <div class="bubble-layout">
+                <!-- 左：建议栏 -->
+                <div id="suggestPanel" class="suggest-panel">
+                    <div class="suggest-panel-header">
+                        <span class="suggest-panel-icon">🌍</span>
+                        <span class="suggest-panel-title">拓宽视野</span>
+                    </div>
+                    <p class="suggest-subtitle">逃离信息茧房的方向与视频</p>
+                    <div id="suggestResult" class="suggest-result">
+                        <p class="ai-placeholder">加载数据后自动生成推荐…</p>
+                    </div>
+                </div>
+
+                <!-- 中：气泡图 -->
+                <div class="canvas-container">
+                    <canvas id="bubbleCanvas"></canvas>
+                </div>
+
+                <!-- 右：AI 分析栏 -->
+                <div id="aiPanel" class="ai-panel">
+                    <div class="ai-key-section">
+                        <label class="ai-key-label">MiniMax API Key</label>
+                        <div class="ai-key-row">
+                            <input type="password" id="apiKeyInput" class="ai-key-input" placeholder="输入你的 API Key" autocomplete="off" />
+                            <button id="saveKeyBtn" class="ai-key-btn">保存</button>
+                        </div>
+                        <div id="keyStatus" class="key-status"></div>
+                    </div>
+                    <div class="ai-divider"></div>
+                    <div class="ai-content">
+                        <div class="ai-panel-header">
+                            <span class="ai-panel-icon">🧠</span>
+                            <span class="ai-panel-title">你的兴趣画像</span>
+                        </div>
+                        <div id="aiResult" class="ai-result">
+                            <p class="ai-placeholder">加载数据后自动生成分析…</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
